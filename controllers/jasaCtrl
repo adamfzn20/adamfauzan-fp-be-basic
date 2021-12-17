@@ -1,0 +1,64 @@
+const Jasa = require("../models/jasaModel");
+
+const jasaCtrl = {
+  getJasa: async (req, res) => {
+    try {
+      const jasaList = await Jasa.find();
+
+      if (!jasaList) {
+        res.status(500).json({
+          success: false,
+        });
+      }
+      res.send(jasaList);
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+  createJasa: async (req, res) => {
+    try {
+      const { namaJasa, descJasa, catJasa, startingPrice } = req.body;
+      if (catJasa > 3) return res.status(400).json({ msg: "category only 3" });
+      const newJasa = new Jasa({
+        namaJasa: namaJasa.toLowerCase(),
+        descJasa,
+        catJasa,
+        startingPrice,
+      });
+
+      await newJasa.save();
+      res.json({ msg: "Created a jasa" });
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+  deleteJasa: async (req, res) => {
+    try {
+      await Jasa.findOneAndDelete(req.params.namaJasa);
+      res.json({ msg: "Deleted a jasa" });
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+  updateJasa: async (req, res) => {
+    try {
+      const { namaJasa, descJasa, catJasa, startingPrice } = req.body;
+      if (catJasa > 3) return res.status(400).json({ msg: "category only 3" });
+      await Jasa.findOneAndUpdate(
+        { namaJasa: req.params.namaJasa },
+        {
+          namaJasa: namaJasa.toLowerCase(),
+          descJasa,
+          catJasa,
+          startingPrice,
+        }
+      );
+
+      res.json({ msg: "Updated a jasa" });
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+};
+
+module.exports = jasaCtrl;
